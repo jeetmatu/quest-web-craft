@@ -1,0 +1,130 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Fish, PlusCircle, List, DollarSign, Users, LogOut } from "lucide-react";
+
+const SellerDashboard = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [stats, setStats] = useState({
+    totalListings: 12,
+    activeOffers: 5,
+    totalEarnings: 15420
+  });
+
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    if (!currentUser.email || currentUser.role !== "seller") {
+      navigate("/auth");
+      return;
+    }
+    setUser(currentUser);
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser");
+    navigate("/");
+  };
+
+  if (!user) return null;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/30 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Seller Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-1">{user.email}</p>
+          </div>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid md:grid-cols-3 gap-6">
+          <StatCard
+            title="Total Listings"
+            value={stats.totalListings}
+            icon={<Fish className="h-6 w-6" />}
+            color="from-blue-500 to-cyan-500"
+          />
+          <StatCard
+            title="Active Offers"
+            value={stats.activeOffers}
+            icon={<DollarSign className="h-6 w-6" />}
+            color="from-green-500 to-emerald-500"
+          />
+          <StatCard
+            title="Total Earnings"
+            value={`$${stats.totalEarnings}`}
+            icon={<DollarSign className="h-6 w-6" />}
+            color="from-purple-500 to-pink-500"
+          />
+        </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Manage your fish listings and offers</CardDescription>
+          </CardHeader>
+          <CardContent className="grid md:grid-cols-4 gap-4">
+            <ActionButton
+              icon={<PlusCircle className="h-8 w-8" />}
+              title="Add New Fish"
+              description="List a new fish for sale"
+            />
+            <ActionButton
+              icon={<List className="h-8 w-8" />}
+              title="My Fish List"
+              description="View and manage your listings"
+            />
+            <ActionButton
+              icon={<DollarSign className="h-8 w-8" />}
+              title="Add Offers"
+              description="Create special offers"
+            />
+            <ActionButton
+              icon={<Users className="h-8 w-8" />}
+              title="Saved Contacts"
+              description="View your buyer contacts"
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+const StatCard = ({ title, value, icon, color }: any) => {
+  return (
+    <Card className="relative overflow-hidden">
+      <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-5`}></div>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <div className={`text-primary`}>{icon}</div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-3xl font-bold">{value}</div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const ActionButton = ({ icon, title, description }: any) => {
+  return (
+    <button className="p-6 rounded-xl bg-card border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 text-left group">
+      <div className="text-primary mb-3 group-hover:scale-110 transition-transform">{icon}</div>
+      <h3 className="font-semibold mb-1">{title}</h3>
+      <p className="text-sm text-muted-foreground">{description}</p>
+    </button>
+  );
+};
+
+export default SellerDashboard;
