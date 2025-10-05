@@ -117,9 +117,9 @@ const StatCard = ({ title, value, icon, color }: any) => {
   );
 };
 
-const ActionButton = ({ icon, title, description }: any) => {
+const ActionButton = ({ icon, title, description, onClick }: any) => {
   return (
-    <button className="p-6 rounded-xl bg-card border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 text-left group">
+    <button onClick={onClick} className="p-6 rounded-xl bg-card border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 text-left group">
       <div className="text-primary mb-3 group-hover:scale-110 transition-transform">{icon}</div>
       <h3 className="font-semibold mb-1">{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>

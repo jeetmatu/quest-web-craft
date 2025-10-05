@@ -79,21 +79,25 @@ const SellerDashboard = () => {
               icon={<PlusCircle className="h-8 w-8" />}
               title="Add New Fish"
               description="List a new fish for sale"
+              onClick={() => navigate("/seller/add-fish")}
             />
             <ActionButton
               icon={<List className="h-8 w-8" />}
               title="My Fish List"
               description="View and manage your listings"
+              onClick={() => navigate("/seller/my-fish")}
             />
             <ActionButton
               icon={<DollarSign className="h-8 w-8" />}
-              title="Add Offers"
-              description="Create special offers"
+              title="View Offers"
+              description="Check buyer offers"
+              onClick={() => navigate("/seller/view-offers")}
             />
             <ActionButton
               icon={<Users className="h-8 w-8" />}
               title="Saved Contacts"
               description="View your buyer contacts"
+              onClick={() => navigate("/seller/contacts")}
             />
           </CardContent>
         </Card>
@@ -117,9 +121,9 @@ const StatCard = ({ title, value, icon, color }: any) => {
   );
 };
 
-const ActionButton = ({ icon, title, description }: any) => {
+const ActionButton = ({ icon, title, description, onClick }: any) => {
   return (
-    <button className="p-6 rounded-xl bg-card border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 text-left group">
+    <button onClick={onClick} className="p-6 rounded-xl bg-card border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 text-left group">
       <div className="text-primary mb-3 group-hover:scale-110 transition-transform">{icon}</div>
       <h3 className="font-semibold mb-1">{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
