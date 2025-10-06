@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, FileText, BarChart3, Settings, Shield, LogOut } from "lucide-react";
+
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -40,7 +40,6 @@ const AdminDashboard = () => {
             <p className="text-muted-foreground mt-1">{user.email}</p>
           </div>
           <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
         </div>
@@ -50,13 +49,11 @@ const AdminDashboard = () => {
           <StatCard
             title="Total Users"
             value={stats.totalUsers}
-            icon={<Users className="h-6 w-6" />}
             color="from-blue-500 to-cyan-500"
           />
           <StatCard
             title="System Health"
             value={`${stats.systemHealth}%`}
-            icon={<Shield className="h-6 w-6" />}
             color="from-green-500 to-emerald-500"
           />
         </div>
@@ -110,13 +107,12 @@ const AdminDashboard = () => {
   );
 };
 
-const StatCard = ({ title, value, icon, color }: any) => {
+const StatCard = ({ title, value, color }: any) => {
   return (
     <Card className="relative overflow-hidden">
       <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-5`}></div>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className={`text-primary`}>{icon}</div>
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold">{value}</div>

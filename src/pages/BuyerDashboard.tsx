@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Fish, ShoppingCart, Eye, History, Users, LogOut } from "lucide-react";
+
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
@@ -41,7 +41,6 @@ const BuyerDashboard = () => {
             <p className="text-muted-foreground mt-1">{user.email}</p>
           </div>
           <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
         </div>
@@ -51,19 +50,16 @@ const BuyerDashboard = () => {
           <StatCard
             title="Total Purchases"
             value={stats.totalPurchases}
-            icon={<ShoppingCart className="h-6 w-6" />}
             color="from-blue-500 to-cyan-500"
           />
           <StatCard
             title="Active Offers"
             value={stats.activeOffers}
-            icon={<Eye className="h-6 w-6" />}
             color="from-green-500 to-emerald-500"
           />
           <StatCard
             title="Total Spent"
             value={`₹${stats.totalSpent}`}
-            icon={<ShoppingCart className="h-6 w-6" />}
             color="from-purple-500 to-pink-500"
           />
         </div>
@@ -102,13 +98,12 @@ const BuyerDashboard = () => {
   );
 };
 
-const StatCard = ({ title, value, icon, color }: any) => {
+const StatCard = ({ title, value, color }: any) => {
   return (
     <Card className="relative overflow-hidden">
       <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-5`}></div>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className={`text-primary`}>{icon}</div>
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold">{value}</div>
