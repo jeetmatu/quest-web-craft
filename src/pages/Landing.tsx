@@ -1,4 +1,6 @@
 import { Fish, Users, TrendingUp, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Landing = () => {
   return (
@@ -15,6 +17,11 @@ const Landing = () => {
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
               A digital platform connecting fishermen, buyers, and companies in one streamlined fish supply management system
             </p>
+            <div className="pt-4">
+              <Button size="lg" className="text-lg px-8" asChild>
+                <Link to="/auth">Login</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
