@@ -69,25 +69,21 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent className="grid md:grid-cols-4 gap-4">
             <ActionButton
-              icon={<Users className="h-8 w-8" />}
               title="Manage Users"
               description="View and manage all users"
               onClick={() => navigate("/admin/users")}
             />
             <ActionButton
-              icon={<FileText className="h-8 w-8" />}
               title="Transactions"
               description="View all transactions"
               onClick={() => navigate("/admin/transactions")}
             />
             <ActionButton
-              icon={<Shield className="h-8 w-8" />}
               title="Manage Listings"
               description="Verify quality tags"
               onClick={() => navigate("/admin/listings")}
             />
             <ActionButton
-              icon={<BarChart3 className="h-8 w-8" />}
               title="Reports"
               description="Generate reports"
               onClick={() => navigate("/admin/reports")}
@@ -103,7 +99,6 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <ActionButton
-              icon={<Settings className="h-8 w-8" />}
               title="System Settings"
               description="Configure system settings"
               onClick={() => navigate("/admin/settings")}
@@ -130,10 +125,9 @@ const StatCard = ({ title, value, icon, color }: any) => {
   );
 };
 
-const ActionButton = ({ icon, title, description, onClick }: any) => {
+const ActionButton = ({ title, description, onClick }: any) => {
   return (
     <button onClick={onClick} className="p-6 rounded-xl bg-card border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 text-left group">
-      <div className="text-primary mb-3 group-hover:scale-110 transition-transform">{icon}</div>
       <h3 className="font-semibold mb-1">{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
     </button>

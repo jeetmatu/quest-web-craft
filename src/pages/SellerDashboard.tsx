@@ -62,7 +62,7 @@ const SellerDashboard = () => {
           />
           <StatCard
             title="Total Earnings"
-            value={`$${stats.totalEarnings}`}
+            value={`₹${stats.totalEarnings}`}
             icon={<DollarSign className="h-6 w-6" />}
             color="from-purple-500 to-pink-500"
           />
@@ -76,25 +76,21 @@ const SellerDashboard = () => {
           </CardHeader>
           <CardContent className="grid md:grid-cols-4 gap-4">
             <ActionButton
-              icon={<PlusCircle className="h-8 w-8" />}
               title="Add New Fish"
               description="List a new fish for sale"
               onClick={() => navigate("/seller/add-fish")}
             />
             <ActionButton
-              icon={<List className="h-8 w-8" />}
               title="My Fish List"
               description="View and manage your listings"
               onClick={() => navigate("/seller/my-fish")}
             />
             <ActionButton
-              icon={<DollarSign className="h-8 w-8" />}
-              title="View Offers"
-              description="Check buyer offers"
+              title="Customers"
+              description="View your customers"
               onClick={() => navigate("/seller/view-offers")}
             />
             <ActionButton
-              icon={<Users className="h-8 w-8" />}
               title="Saved Contacts"
               description="View your buyer contacts"
               onClick={() => navigate("/seller/contacts")}
@@ -121,10 +117,9 @@ const StatCard = ({ title, value, icon, color }: any) => {
   );
 };
 
-const ActionButton = ({ icon, title, description, onClick }: any) => {
+const ActionButton = ({ title, description, onClick }: any) => {
   return (
     <button onClick={onClick} className="p-6 rounded-xl bg-card border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 text-left group">
-      <div className="text-primary mb-3 group-hover:scale-110 transition-transform">{icon}</div>
       <h3 className="font-semibold mb-1">{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
     </button>

@@ -62,7 +62,7 @@ const BuyerDashboard = () => {
           />
           <StatCard
             title="Total Spent"
-            value={`$${stats.totalSpent}`}
+            value={`₹${stats.totalSpent}`}
             icon={<ShoppingCart className="h-6 w-6" />}
             color="from-purple-500 to-pink-500"
           />
@@ -76,24 +76,24 @@ const BuyerDashboard = () => {
           </CardHeader>
           <CardContent className="grid md:grid-cols-4 gap-4">
             <ActionButton
-              icon={<Fish className="h-8 w-8" />}
               title="Browse Fish"
               description="Search available fish listings"
+              onClick={() => navigate("/buyer/fish-list")}
             />
             <ActionButton
-              icon={<Eye className="h-8 w-8" />}
-              title="View Offers"
-              description="Browse available offers"
+              title="Track Offers"
+              description="Track your offers"
+              onClick={() => navigate("/buyer/track-offers")}
             />
             <ActionButton
-              icon={<History className="h-8 w-8" />}
               title="Purchase History"
               description="View past purchases"
+              onClick={() => navigate("/buyer/purchase-history")}
             />
             <ActionButton
-              icon={<Users className="h-8 w-8" />}
               title="Saved Contacts"
               description="View your seller contacts"
+              onClick={() => navigate("/buyer/contacts")}
             />
           </CardContent>
         </Card>
@@ -117,10 +117,9 @@ const StatCard = ({ title, value, icon, color }: any) => {
   );
 };
 
-const ActionButton = ({ icon, title, description, onClick }: any) => {
+const ActionButton = ({ title, description, onClick }: any) => {
   return (
     <button onClick={onClick} className="p-6 rounded-xl bg-card border border-border hover:shadow-lg hover:scale-105 transition-all duration-300 text-left group">
-      <div className="text-primary mb-3 group-hover:scale-110 transition-transform">{icon}</div>
       <h3 className="font-semibold mb-1">{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
     </button>
