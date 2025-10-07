@@ -155,8 +155,14 @@ const FishList = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Expected Price:</span>
-                    <span className="font-semibold text-primary">${fish.priceExpected}/kg</span>
+                    <span className="font-semibold text-primary">₹{fish.priceExpected}/kg</span>
                   </div>
+                  {fish.contact_number && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Contact:</span>
+                      <span className="font-semibold">{fish.contact_number}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Harvest Date:</span>
                     <span className="font-semibold">{new Date(fish.harvestDate).toLocaleDateString()}</span>
@@ -164,13 +170,19 @@ const FishList = () => {
                   {fish.description && (
                     <p className="text-sm text-muted-foreground pt-2 border-t">{fish.description}</p>
                   )}
-                  <Button 
-                    className="w-full mt-4"
-                    onClick={() => navigate("/buyer/make-offer", { state: { fish } })}
-                  >
-                    <DollarSign className="mr-2 h-4 w-4" />
-                    Make an Offer
-                  </Button>
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    <Button 
+                      variant="outline"
+                      onClick={() => navigate("/messages", { state: { listingId: fish.id } })}
+                    >
+                      Message
+                    </Button>
+                    <Button 
+                      onClick={() => navigate("/buyer/make-offer", { state: { fish } })}
+                    >
+                      Make Offer
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

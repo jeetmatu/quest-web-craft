@@ -2,28 +2,66 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { supabase } from "@/integrations/supabase/client";
 
 const SellerDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState({
-    totalListings: 12,
-    activeOffers: 5,
-    totalEarnings: 15420
+    totalListings: 0,
+    activeOffers: 0,
+    totalEarnings: 0
   });
 
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
-    if (!currentUser.email || currentUser.role !== "seller") {
-      navigate("/auth");
-      return;
-    }
-    setUser(currentUser);
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (roleData?.role !== 'seller') {
+        navigate("/auth");
+        return;
+      }
+
+      setUser(session.user);
+      await loadStats(session.user.id);
+    };
+    init();
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser");
+  const loadStats = async (userId: string) => {
+    const { data: listings } = await supabase
+      .from('fish_listings')
+      .select('*')
+      .eq('seller_id', userId);
+
+    const { data: offers } = await supabase
+      .from('offers')
+      .select('*')
+      .eq('seller_id', userId);
+
+    const acceptedOffers = offers?.filter(o => o.status === 'accepted') || [];
+    const activeOffers = offers?.filter(o => o.status === 'pending') || [];
+    const totalEarnings = acceptedOffers.reduce((sum, o) => sum + (parseFloat(String(o.offered_price)) * parseFloat(String(o.quantity))), 0);
+
+    setStats({
+      totalListings: listings?.length || 0,
+      activeOffers: activeOffers.length,
+      totalEarnings
+    });
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate("/");
   };
 
@@ -83,12 +121,12 @@ const SellerDashboard = () => {
             />
             <ActionButton
               title="Customers"
-              description="View your customers"
-              onClick={() => navigate("/seller/view-offers")}
+              description="View customer records"
+              onClick={() => navigate("/seller/view-records")}
             />
             <ActionButton
-              title="Saved Contacts"
-              description="View your buyer contacts"
+              title="Messages"
+              description="View your messages"
               onClick={() => navigate("/seller/contacts")}
             />
           </CardContent>

@@ -1,48 +1,112 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState<"seller" | "buyer" | "admin">("buyer");
+  const [role, setRole] = useState<"seller" | "buyer">("buyer");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        checkUserRole(session.user.id);
+      }
+    });
+  }, []);
+
+  const checkUserRole = async (userId: string) => {
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .single();
+
+    if (roleData) {
+      navigate(`/${roleData.role}`);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Mock authentication - in real app, this would connect to Lovable Cloud
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    
-    if (isLogin) {
-      const user = users.find((u: any) => u.email === email && u.password === password);
-      if (user) {
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        toast.success("Login successful!");
-        navigate(`/${user.role}`);
-      } else {
-        toast.error("Invalid credentials");
-      }
-    } else {
-      const existingUser = users.find((u: any) => u.email === email);
-      if (existingUser) {
-        toast.error("User already exists");
+    if (isAdminLogin) {
+      // Admin login
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
         return;
       }
-      
-      const newUser = { email, password, name, role };
-      users.push(newUser);
-      localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem("currentUser", JSON.stringify(newUser));
-      toast.success("Registration successful!");
-      navigate(`/${role}`);
+
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .single();
+
+      if (roleData?.role === 'admin') {
+        toast({ title: "Success", description: "Admin login successful!" });
+        navigate('/admin');
+      } else {
+        await supabase.auth.signOut();
+        toast({ title: "Error", description: "Unauthorized", variant: "destructive" });
+      }
+    } else if (isLogin) {
+      // Regular login
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        return;
+      }
+
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .single();
+
+      if (roleData) {
+        toast({ title: "Success", description: "Login successful!" });
+        navigate(`/${roleData.role}`);
+      }
+    } else {
+      // Sign up
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        }
+      });
+
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        return;
+      }
+
+      if (data.user) {
+        await supabase.from('user_roles').insert({ user_id: data.user.id, role });
+        toast({ title: "Success", description: "Registration successful!" });
+        navigate(`/${role}`);
+      }
     }
   };
 
@@ -54,25 +118,11 @@ const Auth = () => {
             FishSupply
           </CardTitle>
           <CardDescription>
-            {isLogin ? "Sign in to your account" : "Create a new account"}
+            {isAdminLogin ? "Admin Sign In" : isLogin ? "Sign in to your account" : "Create a new account"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-            )}
-
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -97,7 +147,7 @@ const Auth = () => {
               />
             </div>
 
-            {!isLogin && (
+            {!isLogin && !isAdminLogin && (
               <div className="space-y-2">
                 <Label htmlFor="role">Register as</Label>
                 <Select value={role} onValueChange={(value: any) => setRole(value)}>
@@ -107,23 +157,34 @@ const Auth = () => {
                   <SelectContent>
                     <SelectItem value="seller">Seller (Fisherman)</SelectItem>
                     <SelectItem value="buyer">Buyer</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             )}
 
             <Button type="submit" className="w-full">
-              {isLogin ? "Sign In" : "Register"}
+              {isAdminLogin ? "Admin Sign In" : isLogin ? "Sign In" : "Register"}
             </Button>
+
+            {!isAdminLogin && (
+              <div className="text-center text-sm">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-primary hover:underline"
+                >
+                  {isLogin ? "Don't have an account? Register here" : "Already have an account? Sign in"}
+                </button>
+              </div>
+            )}
 
             <div className="text-center text-sm">
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-primary hover:underline"
+                onClick={() => setIsAdminLogin(!isAdminLogin)}
+                className="text-muted-foreground hover:text-primary"
               >
-                {isLogin ? "Don't have an account? Register here" : "Already have an account? Sign in"}
+                {isAdminLogin ? "Back to regular login" : "Admin login"}
               </button>
             </div>
 

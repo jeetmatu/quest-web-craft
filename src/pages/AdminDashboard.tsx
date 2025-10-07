@@ -2,27 +2,58 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState({
-    totalUsers: 145,
-    systemHealth: 98
+    totalUsers: 0,
+    totalReports: 0
   });
 
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
-    if (!currentUser.email || currentUser.role !== "admin") {
-      navigate("/auth");
-      return;
-    }
-    setUser(currentUser);
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (roleData?.role !== 'admin') {
+        navigate("/auth");
+        return;
+      }
+
+      setUser(session.user);
+      await loadStats();
+    };
+    init();
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser");
+  const loadStats = async () => {
+    const { count: usersCount } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+
+    const { count: reportsCount } = await supabase
+      .from('purchase_reports')
+      .select('*', { count: 'exact', head: true });
+
+    setStats({
+      totalUsers: usersCount || 0,
+      totalReports: reportsCount || 0
+    });
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate("/");
   };
 
@@ -52,8 +83,8 @@ const AdminDashboard = () => {
             color="from-blue-500 to-cyan-500"
           />
           <StatCard
-            title="System Health"
-            value={`${stats.systemHealth}%`}
+            title="Purchase Reports"
+            value={stats.totalReports}
             color="from-green-500 to-emerald-500"
           />
         </div>
@@ -81,9 +112,9 @@ const AdminDashboard = () => {
               onClick={() => navigate("/admin/listings")}
             />
             <ActionButton
-              title="Reports"
-              description="Generate reports"
-              onClick={() => navigate("/admin/reports")}
+              title="Purchase Reports"
+              description="View buyer purchase reports"
+              onClick={() => navigate("/admin/view-reports")}
             />
           </CardContent>
         </Card>

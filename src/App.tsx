@@ -23,6 +23,9 @@ import ViewTransactions from "./pages/admin/ViewTransactions";
 import ManageListings from "./pages/admin/ManageListings";
 import Reports from "./pages/admin/Reports";
 import SystemSettings from "./pages/admin/SystemSettings";
+import Messages from "./pages/Messages";
+import ViewReports from "./pages/admin/ViewReports";
+import ViewRecords from "./pages/seller/ViewRecords";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +44,7 @@ const App = () => (
           <Route path="/seller/my-fish" element={<MyFish />} />
           <Route path="/seller/view-offers" element={<ViewOffers />} />
           <Route path="/seller/contacts" element={<SavedContacts />} />
+          <Route path="/seller/view-records" element={<ViewRecords />} />
           <Route path="/buyer" element={<BuyerDashboard />} />
           <Route path="/buyer/fish-list" element={<FishList />} />
           <Route path="/buyer/make-offer" element={<MakeOffer />} />
@@ -53,6 +57,8 @@ const App = () => (
           <Route path="/admin/listings" element={<ManageListings />} />
           <Route path="/admin/reports" element={<Reports />} />
           <Route path="/admin/settings" element={<SystemSettings />} />
+          <Route path="/admin/view-reports" element={<ViewReports />} />
+          <Route path="/messages" element={<Messages />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

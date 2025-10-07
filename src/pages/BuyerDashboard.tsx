@@ -2,28 +2,61 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { supabase } from "@/integrations/supabase/client";
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState({
-    totalPurchases: 8,
-    activeOffers: 3,
-    totalSpent: 12340
+    totalPurchases: 0,
+    activeOffers: 0,
+    totalSpent: 0
   });
 
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
-    if (!currentUser.email || currentUser.role !== "buyer") {
-      navigate("/auth");
-      return;
-    }
-    setUser(currentUser);
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (roleData?.role !== 'buyer') {
+        navigate("/auth");
+        return;
+      }
+
+      setUser(session.user);
+      await loadStats(session.user.id);
+    };
+    init();
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser");
+  const loadStats = async (userId: string) => {
+    const { data: offers } = await supabase
+      .from('offers')
+      .select('*')
+      .eq('buyer_id', userId);
+
+    const acceptedOffers = offers?.filter(o => o.status === 'accepted') || [];
+    const activeOffers = offers?.filter(o => o.status === 'pending') || [];
+    const totalSpent = acceptedOffers.reduce((sum, o) => sum + (parseFloat(String(o.offered_price)) * parseFloat(String(o.quantity))), 0);
+
+    setStats({
+      totalPurchases: acceptedOffers.length,
+      activeOffers: activeOffers.length,
+      totalSpent
+    });
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate("/");
   };
 
@@ -87,8 +120,8 @@ const BuyerDashboard = () => {
               onClick={() => navigate("/buyer/purchase-history")}
             />
             <ActionButton
-              title="Saved Contacts"
-              description="View your seller contacts"
+              title="Messages"
+              description="View your messages"
               onClick={() => navigate("/buyer/contacts")}
             />
           </CardContent>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Fish } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const AddFish = () => {
   const navigate = useNavigate();
@@ -18,27 +19,45 @@ const AddFish = () => {
     priceExpected: "",
     location: "",
     description: "",
+    contactNumber: "",
     harvestDate: new Date().toISOString().split('T')[0]
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const existingFish = JSON.parse(localStorage.getItem("fishListings") || "[]");
-    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { error } = await supabase.from('fish_listings').insert({
+      seller_id: session.user.id,
+      fish_type: formData.fishType,
+      quantity: parseFloat(formData.quantity) || 0,
+      quality: formData.quality,
+      price_expected: parseFloat(formData.priceExpected) || 0,
+      location: formData.location,
+      description: formData.description,
+      contact_number: formData.contactNumber,
+      harvest_date: formData.harvestDate,
+      status: "available"
+    });
+
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
     
-    const newFish = {
-      id: Date.now().toString(),
-      ...formData,
-      sellerId: currentUser.email,
-      status: "available",
-      createdAt: new Date().toISOString()
-    };
-    
-    existingFish.push(newFish);
-    localStorage.setItem("fishListings", JSON.stringify(existingFish));
-    
-    toast.success("Fish listing added successfully!");
+    toast({ title: "Success", description: "Fish listing added successfully!" });
     navigate("/seller");
   };
 
@@ -110,14 +129,26 @@ const AddFish = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="priceExpected">Expected Price ($/kg) *</Label>
+                  <Label htmlFor="priceExpected">Expected Price (₹/kg) *</Label>
                   <Input
                     id="priceExpected"
                     type="number"
-                    placeholder="e.g., 12.50"
+                    placeholder="e.g., 250"
                     step="0.01"
                     value={formData.priceExpected}
                     onChange={(e) => setFormData({...formData, priceExpected: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contactNumber">Contact Number *</Label>
+                  <Input
+                    id="contactNumber"
+                    type="tel"
+                    placeholder="e.g., +91 9876543210"
+                    value={formData.contactNumber}
+                    onChange={(e) => setFormData({...formData, contactNumber: e.target.value})}
                     required
                   />
                 </div>
