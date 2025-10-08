@@ -9,7 +9,7 @@ const Landing = () => {
         
         <div className="container mx-auto px-6 py-24 relative">
           <div className="text-center max-w-4xl mx-auto space-y-8 animate-fade-in">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent leading-tight text-center md:text-7xl">NakhwaNet</h1>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent leading-tight text-center md:text-7xl">VMS</h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">A digital platform connecting fishermen and buyers in one streamlined fish supply management system</p>
             <div className="pt-4">
               <Button size="lg" className="text-lg px-8" asChild>
@@ -24,7 +24,7 @@ const Landing = () => {
       <section className="py-20 bg-card/50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Why Choose FishSupply?</h2>
+            <h2 className="text-4xl font-bold mb-4">Why Choose VMS?</h2>
             <p className="text-lg text-muted-foreground">Efficient, transparent, and sustainable fish trading</p>
           </div>
           

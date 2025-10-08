@@ -95,7 +95,7 @@ const AdminDashboard = () => {
             <CardTitle>Admin Tools</CardTitle>
             <CardDescription>Manage your platform</CardDescription>
           </CardHeader>
-          <CardContent className="grid md:grid-cols-4 gap-4">
+          <CardContent className="grid md:grid-cols-3 gap-4">
             <ActionButton
               title="Manage Users"
               description="View and manage all users"
@@ -110,11 +110,6 @@ const AdminDashboard = () => {
               title="Manage Listings"
               description="Verify quality tags"
               onClick={() => navigate("/admin/listings")}
-            />
-            <ActionButton
-              title="Purchase Reports"
-              description="View buyer purchase reports"
-              onClick={() => navigate("/admin/view-reports")}
             />
           </CardContent>
         </Card>

@@ -7,6 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const emailSchema = z.string().email("Invalid email address").max(255);
+const passwordSchema = z.string().min(6, "Password must be at least 6 characters").max(100);
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -39,6 +43,17 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate email and password
+    try {
+      emailSchema.parse(email);
+      passwordSchema.parse(password);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({ title: "Validation Error", description: error.errors[0].message, variant: "destructive" });
+        return;
+      }
+    }
     
     if (isAdminLogin) {
       // Admin login
@@ -115,7 +130,7 @@ const Auth = () => {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            FishSupply
+            VMS
           </CardTitle>
           <CardDescription>
             {isAdminLogin ? "Admin Sign In" : isLogin ? "Sign in to your account" : "Create a new account"}
