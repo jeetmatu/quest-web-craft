@@ -14,7 +14,6 @@ const passwordSchema = z.string().min(6, "Password must be at least 6 characters
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [isAdminLogin, setIsAdminLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"seller" | "buyer">("buyer");
@@ -55,32 +54,7 @@ const Auth = () => {
       }
     }
     
-    if (isAdminLogin) {
-      // Admin login
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-        return;
-      }
-
-      const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', data.user.id)
-        .single();
-
-      if (roleData?.role === 'admin') {
-        toast({ title: "Success", description: "Admin login successful!" });
-        navigate('/admin');
-      } else {
-        await supabase.auth.signOut();
-        toast({ title: "Error", description: "Unauthorized", variant: "destructive" });
-      }
-    } else if (isLogin) {
+    if (isLogin) {
       // Regular login
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -133,7 +107,7 @@ const Auth = () => {
             VMS
           </CardTitle>
           <CardDescription>
-            {isAdminLogin ? "Admin Sign In" : isLogin ? "Sign in to your account" : "Create a new account"}
+            {isLogin ? "Sign in to your account" : "Create a new account"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -162,7 +136,7 @@ const Auth = () => {
               />
             </div>
 
-            {!isLogin && !isAdminLogin && (
+            {!isLogin && (
               <div className="space-y-2">
                 <Label htmlFor="role">Register as</Label>
                 <Select value={role} onValueChange={(value: any) => setRole(value)}>
@@ -178,28 +152,16 @@ const Auth = () => {
             )}
 
             <Button type="submit" className="w-full">
-              {isAdminLogin ? "Admin Sign In" : isLogin ? "Sign In" : "Register"}
+              {isLogin ? "Sign In" : "Register"}
             </Button>
-
-            {!isAdminLogin && (
-              <div className="text-center text-sm">
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-primary hover:underline"
-                >
-                  {isLogin ? "Don't have an account? Register here" : "Already have an account? Sign in"}
-                </button>
-              </div>
-            )}
 
             <div className="text-center text-sm">
               <button
                 type="button"
-                onClick={() => setIsAdminLogin(!isAdminLogin)}
-                className="text-muted-foreground hover:text-primary"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-primary hover:underline"
               >
-                {isAdminLogin ? "Back to regular login" : "Admin login"}
+                {isLogin ? "Don't have an account? Register here" : "Already have an account? Sign in"}
               </button>
             </div>
 
