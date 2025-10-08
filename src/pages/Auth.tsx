@@ -66,16 +66,20 @@ const Auth = () => {
         return;
       }
 
-      const { data: roleData } = await supabase
+      const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', data.user.id)
         .single();
 
-      if (roleData) {
-        toast({ title: "Success", description: "Login successful!" });
-        navigate(`/${roleData.role}`);
+      if (roleError || !roleData) {
+        await supabase.auth.signOut();
+        toast({ title: "Error", description: "User role not found. Please contact support.", variant: "destructive" });
+        return;
       }
+
+      toast({ title: "Success", description: "Login successful!" });
+      navigate(`/${roleData.role}`);
     } else {
       // Sign up
       const { data, error } = await supabase.auth.signUp({
