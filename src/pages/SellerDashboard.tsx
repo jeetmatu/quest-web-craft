@@ -8,9 +8,10 @@ const SellerDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState({
-    totalListings: 0,
-    activeOffers: 0,
-    totalEarnings: 0
+    totalProducts: 0,
+    pendingOrders: 0,
+    totalEarnings: 0,
+    lowStock: 0
   });
 
   useEffect(() => {
@@ -39,24 +40,33 @@ const SellerDashboard = () => {
   }, [navigate]);
 
   const loadStats = async (userId: string) => {
-    const { data: listings } = await supabase
-      .from('fish_listings')
+    // Get products
+    const { data: products } = await supabase
+      .from('products')
       .select('*')
       .eq('seller_id', userId);
 
-    const { data: offers } = await supabase
-      .from('offers')
-      .select('*')
+    const lowStockProducts = products?.filter(p => p.stock_quantity < 10) || [];
+
+    // Get order items for this seller
+    const { data: orderItems } = await supabase
+      .from('order_items')
+      .select('*, orders(*)')
       .eq('seller_id', userId);
 
-    const acceptedOffers = offers?.filter(o => o.status === 'accepted') || [];
-    const activeOffers = offers?.filter(o => o.status === 'pending') || [];
-    const totalEarnings = acceptedOffers.reduce((sum, o) => sum + (parseFloat(String(o.offered_price)) * parseFloat(String(o.quantity))), 0);
+    const pendingOrders = orderItems?.filter(item => 
+      item.orders?.order_status === 'pending' || item.orders?.order_status === 'confirmed'
+    ) || [];
+
+    const totalEarnings = orderItems?.reduce((sum, item) => 
+      sum + (parseFloat(String(item.price)) * item.quantity), 0
+    ) || 0;
 
     setStats({
-      totalListings: listings?.length || 0,
-      activeOffers: activeOffers.length,
-      totalEarnings
+      totalProducts: products?.length || 0,
+      pendingOrders: pendingOrders.length,
+      totalEarnings,
+      lowStock: lowStockProducts.length
     });
   };
 
@@ -74,7 +84,7 @@ const SellerDashboard = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Seller Dashboard
+              🐾 Seller Dashboard
             </h1>
             <p className="text-muted-foreground mt-1">{user.email}</p>
           </div>
@@ -84,21 +94,26 @@ const SellerDashboard = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-4 gap-6">
           <StatCard
-            title="Total Listings"
-            value={stats.totalListings}
+            title="Total Products"
+            value={stats.totalProducts}
             color="from-blue-500 to-cyan-500"
           />
           <StatCard
-            title="Active Offers"
-            value={stats.activeOffers}
-            color="from-green-500 to-emerald-500"
+            title="Pending Orders"
+            value={stats.pendingOrders}
+            color="from-yellow-500 to-orange-500"
           />
           <StatCard
             title="Total Earnings"
-            value={`₹${stats.totalEarnings}`}
-            color="from-purple-500 to-pink-500"
+            value={`₹${stats.totalEarnings.toFixed(2)}`}
+            color="from-green-500 to-emerald-500"
+          />
+          <StatCard
+            title="Low Stock Items"
+            value={stats.lowStock}
+            color="from-red-500 to-pink-500"
           />
         </div>
 
@@ -106,28 +121,28 @@ const SellerDashboard = () => {
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Manage your fish listings and offers</CardDescription>
+            <CardDescription>Manage your pet food products and orders</CardDescription>
           </CardHeader>
           <CardContent className="grid md:grid-cols-4 gap-4">
             <ActionButton
-              title="Add New Fish"
-              description="List a new fish for sale"
-              onClick={() => navigate("/seller/add-fish")}
+              title="Add Product"
+              description="List a new pet food product"
+              onClick={() => navigate("/seller/add-product")}
             />
             <ActionButton
-              title="My Fish List"
-              description="View and manage your listings"
-              onClick={() => navigate("/seller/my-fish")}
+              title="My Products"
+              description="View and manage products"
+              onClick={() => navigate("/seller/my-products")}
             />
             <ActionButton
-              title="Customers"
-              description="View customer records"
-              onClick={() => navigate("/seller/view-records")}
+              title="Orders"
+              description="View and process orders"
+              onClick={() => navigate("/seller/orders")}
             />
             <ActionButton
-              title="Messages"
-              description="View your messages"
-              onClick={() => navigate("/seller/contacts")}
+              title="Reviews"
+              description="View customer reviews"
+              onClick={() => navigate("/seller/reviews")}
             />
           </CardContent>
         </Card>

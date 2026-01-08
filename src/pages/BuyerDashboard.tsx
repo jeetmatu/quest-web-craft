@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 
-const BuyerDashboard = () => {
+const CustomerDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState({
-    totalPurchases: 0,
-    activeOffers: 0,
-    totalSpent: 0
+    totalOrders: 0,
+    pendingOrders: 0,
+    totalSpent: 0,
+    cartItems: 0
   });
 
   useEffect(() => {
@@ -39,19 +40,26 @@ const BuyerDashboard = () => {
   }, [navigate]);
 
   const loadStats = async (userId: string) => {
-    const { data: offers } = await supabase
-      .from('offers')
+    // Get orders
+    const { data: orders } = await supabase
+      .from('orders')
       .select('*')
-      .eq('buyer_id', userId);
+      .eq('customer_id', userId);
 
-    const acceptedOffers = offers?.filter(o => o.status === 'accepted') || [];
-    const activeOffers = offers?.filter(o => o.status === 'pending') || [];
-    const totalSpent = acceptedOffers.reduce((sum, o) => sum + (parseFloat(String(o.offered_price)) * parseFloat(String(o.quantity))), 0);
+    const pendingOrders = orders?.filter(o => o.order_status !== 'delivered') || [];
+    const totalSpent = orders?.reduce((sum, o) => sum + parseFloat(String(o.total_amount)), 0) || 0;
+
+    // Get cart items
+    const { data: cartItems } = await supabase
+      .from('cart_items')
+      .select('*')
+      .eq('customer_id', userId);
 
     setStats({
-      totalPurchases: acceptedOffers.length,
-      activeOffers: activeOffers.length,
-      totalSpent
+      totalOrders: orders?.length || 0,
+      pendingOrders: pendingOrders.length,
+      totalSpent,
+      cartItems: cartItems?.length || 0
     });
   };
 
@@ -69,7 +77,7 @@ const BuyerDashboard = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Buyer Dashboard
+              🐾 Customer Dashboard
             </h1>
             <p className="text-muted-foreground mt-1">{user.email}</p>
           </div>
@@ -79,21 +87,26 @@ const BuyerDashboard = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-4 gap-6">
           <StatCard
-            title="Total Purchases"
-            value={stats.totalPurchases}
+            title="Total Orders"
+            value={stats.totalOrders}
             color="from-blue-500 to-cyan-500"
           />
           <StatCard
-            title="Active Offers"
-            value={stats.activeOffers}
-            color="from-green-500 to-emerald-500"
+            title="Pending Orders"
+            value={stats.pendingOrders}
+            color="from-yellow-500 to-orange-500"
           />
           <StatCard
             title="Total Spent"
-            value={`₹${stats.totalSpent}`}
+            value={`₹${stats.totalSpent.toFixed(2)}`}
             color="from-purple-500 to-pink-500"
+          />
+          <StatCard
+            title="Cart Items"
+            value={stats.cartItems}
+            color="from-green-500 to-emerald-500"
           />
         </div>
 
@@ -101,28 +114,28 @@ const BuyerDashboard = () => {
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Browse fish and manage your purchases</CardDescription>
+            <CardDescription>Shop for your pet's nutrition needs</CardDescription>
           </CardHeader>
           <CardContent className="grid md:grid-cols-4 gap-4">
             <ActionButton
-              title="Browse Fish"
-              description="Search available fish listings"
-              onClick={() => navigate("/buyer/fish-list")}
+              title="Browse Products"
+              description="Shop pet food products"
+              onClick={() => navigate("/buyer/products")}
             />
             <ActionButton
-              title="Track Offers"
-              description="Track your offers"
-              onClick={() => navigate("/buyer/track-offers")}
+              title="My Cart"
+              description="View your shopping cart"
+              onClick={() => navigate("/buyer/cart")}
             />
             <ActionButton
-              title="Purchase History"
-              description="View past purchases"
-              onClick={() => navigate("/buyer/purchase-history")}
+              title="My Orders"
+              description="Track your orders"
+              onClick={() => navigate("/buyer/orders")}
             />
             <ActionButton
-              title="Messages"
-              description="View your messages"
-              onClick={() => navigate("/buyer/contacts")}
+              title="My Reviews"
+              description="View your reviews"
+              onClick={() => navigate("/buyer/my-reviews")}
             />
           </CardContent>
         </Card>
@@ -154,4 +167,4 @@ const ActionButton = ({ title, description, onClick }: any) => {
   );
 };
 
-export default BuyerDashboard;
+export default CustomerDashboard;
