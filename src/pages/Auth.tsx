@@ -108,7 +108,7 @@ const Auth = () => {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            VMS
+            🐾 Pet Food Store
           </CardTitle>
           <CardDescription>
             {isLogin ? "Sign in to your account" : "Create a new account"}
@@ -148,8 +148,8 @@ const Auth = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="seller">Seller (Fisherman)</SelectItem>
-                    <SelectItem value="buyer">Buyer</SelectItem>
+                    <SelectItem value="seller">Seller (Pet Food Vendor)</SelectItem>
+                    <SelectItem value="buyer">Customer (Pet Owner)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

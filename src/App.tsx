@@ -7,25 +7,19 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import SellerDashboard from "./pages/SellerDashboard";
 import BuyerDashboard from "./pages/BuyerDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
-import AddFish from "./pages/seller/AddFish";
-import MyFish from "./pages/seller/MyFish";
-import ViewOffers from "./pages/seller/ViewOffers";
-import SavedContacts from "./pages/seller/SavedContacts";
-import FishList from "./pages/buyer/FishList";
-import MakeOffer from "./pages/buyer/MakeOffer";
-import TrackOffers from "./pages/buyer/TrackOffers";
-import PurchaseHistory from "./pages/buyer/PurchaseHistory";
-import BuyerContacts from "./pages/buyer/SavedContacts";
-import ManageUsers from "./pages/admin/ManageUsers";
-import ViewTransactions from "./pages/admin/ViewTransactions";
-import ManageListings from "./pages/admin/ManageListings";
-import Reports from "./pages/admin/Reports";
-import SystemSettings from "./pages/admin/SystemSettings";
-import Messages from "./pages/Messages";
-import ViewReports from "./pages/admin/ViewReports";
-import ViewRecords from "./pages/seller/ViewRecords";
+// Seller pages
+import AddProduct from "./pages/seller/AddProduct";
+import MyProducts from "./pages/seller/MyProducts";
+import SellerOrders from "./pages/seller/SellerOrders";
+import SellerReviews from "./pages/seller/SellerReviews";
+// Customer pages
+import ProductList from "./pages/customer/ProductList";
+import Cart from "./pages/customer/Cart";
+import Checkout from "./pages/customer/Checkout";
+import Orders from "./pages/customer/Orders";
+import WriteReview from "./pages/customer/WriteReview";
+import MyReviews from "./pages/customer/MyReviews";
 
 const queryClient = new QueryClient();
 
@@ -39,27 +33,21 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/register" element={<Auth />} />
+          {/* Seller Routes */}
           <Route path="/seller" element={<SellerDashboard />} />
-          <Route path="/seller/add-fish" element={<AddFish />} />
-          <Route path="/seller/my-fish" element={<MyFish />} />
-          <Route path="/seller/view-offers" element={<ViewOffers />} />
-          <Route path="/seller/contacts" element={<SavedContacts />} />
-          <Route path="/seller/view-records" element={<ViewRecords />} />
+          <Route path="/seller/add-product" element={<AddProduct />} />
+          <Route path="/seller/my-products" element={<MyProducts />} />
+          <Route path="/seller/orders" element={<SellerOrders />} />
+          <Route path="/seller/reviews" element={<SellerReviews />} />
+          {/* Customer Routes */}
           <Route path="/buyer" element={<BuyerDashboard />} />
-          <Route path="/buyer/fish-list" element={<FishList />} />
-          <Route path="/buyer/make-offer" element={<MakeOffer />} />
-          <Route path="/buyer/track-offers" element={<TrackOffers />} />
-          <Route path="/buyer/purchase-history" element={<PurchaseHistory />} />
-          <Route path="/buyer/contacts" element={<BuyerContacts />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<ManageUsers />} />
-          <Route path="/admin/transactions" element={<ViewTransactions />} />
-          <Route path="/admin/listings" element={<ManageListings />} />
-          <Route path="/admin/reports" element={<Reports />} />
-          <Route path="/admin/settings" element={<SystemSettings />} />
-          <Route path="/admin/view-reports" element={<ViewReports />} />
-          <Route path="/messages" element={<Messages />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/buyer/products" element={<ProductList />} />
+          <Route path="/buyer/cart" element={<Cart />} />
+          <Route path="/buyer/checkout" element={<Checkout />} />
+          <Route path="/buyer/orders" element={<Orders />} />
+          <Route path="/buyer/review/:orderId" element={<WriteReview />} />
+          <Route path="/buyer/my-reviews" element={<MyReviews />} />
+          {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
